@@ -135,7 +135,7 @@ jobs:
       #     template: basic_fail_1
   deploy-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
     steps:
       - checkout
       - run: yum install -y tar gzip
