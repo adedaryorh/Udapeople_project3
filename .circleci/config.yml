@@ -424,8 +424,8 @@ workflows:
           # filters:
           #  branches:
           #   only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infracstructure]
+      # - configure-infrastructure:
+      #     requires: [deploy-infracstructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
