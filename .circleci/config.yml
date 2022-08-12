@@ -39,8 +39,8 @@ commands:
             cd ~/project/backend
             npm install
             npm run build
-            npm run migrations:revert
-
+            npm run migrations:revert 
+           
 jobs:
   build-frontend:
     docker:
@@ -168,73 +168,73 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-  # configure-infrastructure:
-  #   docker:
-  #     - image: python:3.7-alpine3.16
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints:
-  #           - 'ab:52:25:68:df:4c:3a:d5:48:18:55:d8:f9:3b:df:de'
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add --update --no-cache tar gzip ansible aws-cli
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           # add environment variables to server
-  #           echo ENVIRONMENT=production > backend/.env
-  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
-  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-  #           cat backend/.env
-  #           cd .circleci/ansible
-  #           ansible-playbook -i inventory.txt configure-server.yml
-  #     - persist_to_workspace:
-  #         root: ~/
-  #         paths:
-  #           - project/backend
-  #     - destroy-environment:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-  # run-migrations:
-  #   docker:
-  #     - image: circleci/node:13.8.0 # safest to use to avoid migration errors
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           sudo apt install -y tar gzip curl
-  #           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-  #           unzip -qq awscliv2.zip
-  #           sudo ./aws/install
-  #     - restore_cache:
-  #         keys: [backend-build]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Run migrations
-  #         command: |
-  #           cd backend
-  #           npm run migrations >> migrations.txt
-  #     - run:
-  #         name: Send migration results to kvdb
-  #         command: |
-  #           if grep -q "success" ~/project/backend/migrations.txt
-  #           then
-  #             curl --insecure https://kvdb.io/ViWzkdySLpmD9TMMzU5Fzq/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
-  #           fi
-  #     - destroy-environment:
-  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.16
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - 'd0:0c:ed:09:1e:2c:3d:3d:9b:21:79:99:ae:6b:98:cc'
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache tar gzip ansible aws-cli
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Configure server
+          command: |
+            # add environment variables to server
+            echo ENVIRONMENT=production > backend/.env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            cat backend/.env
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0   # safest to use to avoid migration errors
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install -y tar gzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -qq awscliv2.zip
+            sudo ./aws/install
+      - restore_cache:
+          keys: [backend-build]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm run migrations >> migrations.txt
+      - run:
+          name: Send migration results to kvdb
+          command: |
+            if grep -q "success" ~/project/backend/migrations.txt
+            then
+              curl --insecure https://kvdb.io/5YQLzK3A32BWCGdTVvDKhq/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+            fi
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
   # deploy-frontend:
   #   docker:
   #     - image: python:3.7-alpine3.16
@@ -411,23 +411,21 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-           branches:
-            only: [master]
-      # - add-prometheus-node-exporter:
-      #     requires: [deploy-infrastructure]
-      # - configure-infrastructure:
-      #   requires: [add-prometheus-node-exporter]
+          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          # filters:
+          #  branches:
+          #   only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infracstructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
