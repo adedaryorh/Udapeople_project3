@@ -317,6 +317,8 @@ jobs:
       - image: python:3.7-alpine3.16
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints: ["d0:0c:ed:09:1e:2c:3d:3d:9b:21:79:99:ae:6b:98:cc"]
       - attach_workspace:
           at: ~/
       - run:
@@ -340,12 +342,8 @@ jobs:
       - run:
           name: Install CURL
           command: apk add curl
-      - run:
-          name: Deploy backend
-      - add_ssh_keys:
-          fingerprints: ["d0:0c:ed:09:1e:2c:3d:3d:9b:21:79:99:ae:6b:98:cc"]
-      - restore_cache:
-          keys: [backend-deps]
+      # - restore_cache:
+      #     keys: [backend-deps]
       - run:
           name: Package Backend
           command: |
