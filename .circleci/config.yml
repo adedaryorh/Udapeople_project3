@@ -476,33 +476,33 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
             
-  add-prometheus-node-exporter:
-    docker:
-      - image: python:3.10-alpine3.16
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints:["d0:0c:ed:09:1e:2c:3d:3d:9b:21:79:99:ae:6b:98:cc"]
-      - attach_workspace:
-          at: ~/
-      -run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible tar gzip curl nodejs npm openssh-client git
-            pip install awscli
-            aws --version
-      - restore_cache:
-          keys: [backend-build]
-      - run:
-          name: Setup Prometheus Node Exporter
-          command: |
-            cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt node-exporter.yml
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  # add-prometheus-node-exporter:
+  #   docker:
+  #     - image: python:3.10-alpine3.16
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints:["d0:0c:ed:09:1e:2c:3d:3d:9b:21:79:99:ae:6b:98:cc"]
+  #     - attach_workspace:
+  #         at: ~/
+  #     -run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add --update ansible tar gzip curl nodejs npm openssh-client git
+  #           pip install awscli
+  #           aws --version
+  #     - restore_cache:
+  #         keys: [backend-build]
+  #     - run:
+  #         name: Setup Prometheus Node Exporter
+  #         command: |
+  #           cd .circleci/ansible
+  #           cat inventory.txt
+  #           ansible-playbook -i inventory.txt node-exporter.yml
+  #     - destroy-environment:
+  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  #     - revert-migrations:
+  #         workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
 workflows:
   default:
