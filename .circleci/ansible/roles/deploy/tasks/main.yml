@@ -1,27 +1,32 @@
-- name: "install node exporter."
+- name: "Extract Zipped artifact to EC2"
   unarchive:
-    src: https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-amd64.tar.gz
-    dest: /tmp
-    remote_src: yes
+    src: ~/project/artifact.tar.gz
+    dest: /home/ubuntu
 
-- name: "move binary to /usr/local/bin."
+- name: "Install NodeJS"
   become: true
-  copy:
-    src: /tmp/node_exporter-0.17.0.linux-amd64/node_exporter
-    dest: /usr/local/bin/node_exporter
-    remote_src: yes
-    mode: '0777'
+  apt:
+    name: ["nodejs"]
+    state: latest
+    update_cache: yes
 
-- name: "add node exporter configuration."
+- name: "Install NPM"
   become: true
-  copy:
-    src: node_exporter.service
-    dest: /etc/systemd/system/
+  apt:
+    name: ["npm"]
+    state: latest
+    update_cache: yes
 
-- name: "enable node_exporter service"
-  become: true
-  systemd:
-    state: restarted
-    daemon_reload: yes
-    name: node_exporter
-    enabled: yes
+- name: "Install pm2"
+  become: yes
+  npm:
+    name: pm2
+    global: yes
+
+- name: "Install Packages"
+  command:
+    cmd: npm install
+
+- name: "Start application"
+  command:
+    cmd: pm2 start npm -- start
