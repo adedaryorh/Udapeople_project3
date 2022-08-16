@@ -1,6 +1,6 @@
 version: 2.1
 
-# orbs:
+# oorbs:
 #   slack: circleci/slack@4.1
 
 parameters:
